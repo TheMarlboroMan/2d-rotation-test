@@ -28,9 +28,19 @@ class Controlador_principal:
 
 	private:
 
+	void					rotar(float delta, int dir);
+	void					mover(float delta, int dir);
+
 	typedef DLibH::Poligono_2d<double>	tpoligono;
 
 	DLibH::Log_base&			log;
+
+	struct 
+	{
+		tpoligono			poligono;
+		double				angulo;
+	}jugador;
+
 	std::vector<tpoligono>			poligonos;
 };
 
