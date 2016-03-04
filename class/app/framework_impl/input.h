@@ -8,13 +8,11 @@ struct Input
 {
 	enum inputs{
 escape=0,
-aceptar,
+espacio,
 izquierda,
 derecha,
 arriba,
-abajo,
-pag_siguiente,
-pag_anterior
+abajo
 };
 
 };

@@ -55,7 +55,7 @@ void  Controlador_principal::preloop(DFramework::Input& input, float delta)
 
 void  Controlador_principal::loop(DFramework::Input& input, float delta)
 {
-	if(input.es_senal_salida())
+	if(input.es_senal_salida() || input.es_input_pulsado(Input::escape))
 	{
 		abandonar_aplicacion();
 	}
@@ -64,10 +64,26 @@ void  Controlador_principal::loop(DFramework::Input& input, float delta)
 		auto copia_p=jugador.poligono;
 		auto copia_a=jugador.angulo;
 
-		int i=0;
-		for(auto& p : poligonos)
+		for(const auto& p : poligonos)
 		{
-			p.rotar(i++%2 ? (double)delta * 10.0 : -(double)delta * 10.0);
+			for(auto& d : disparos)
+			{
+				if(colision_poligono_SAT(p, d.poligono)) 
+				{
+					d.tiempo=0.0f;
+					break;
+				}
+			}
+		}
+
+		for(auto& d : disparos) mover_disparo(d, delta);
+		auto ini=std::begin(disparos);
+		while(ini < std::end(disparos))
+		{
+			auto &d=*ini;
+			d.tiempo-=delta;
+			if(d.tiempo < 0.0f) ini=disparos.erase(ini);
+			else ++ini;
 		}
 
 
@@ -86,6 +102,11 @@ void  Controlador_principal::loop(DFramework::Input& input, float delta)
 		else if(input.es_input_pulsado(Input::abajo))
 		{
 			mover(delta, -1);
+		}
+		
+		if(input.es_input_down(Input::espacio))
+		{
+			disparar();
 		}
 
 		for(const auto& p : poligonos)
@@ -162,12 +183,8 @@ void  Controlador_principal::dibujar(DLibV::Pantalla& pantalla)
 
 	dibujar_poligono(jugador.poligono, pantalla, 0, 400);
 
-	for(const auto& p : poligonos)
-	{
-		//0.200 es el nuevo origen.
-		//TODO: Añadir factor de zoom.
-		dibujar_poligono(p, pantalla, 0, 400);
-	}
+	for(const auto& p : poligonos) dibujar_poligono(p, pantalla, 0, 400);
+	for(const auto& d : disparos) dibujar_poligono(d.poligono, pantalla, 0, 400);
 }
 
 void  Controlador_principal::despertar()
@@ -203,3 +220,40 @@ void Controlador_principal::mover(float delta, int dir)
 	DLibH::Punto_2d<double> pd{v.x * factor_movimiento, v.y * factor_movimiento};
 	jugador.poligono.desplazar(pd);
 }
+
+void Controlador_principal::mover_disparo(disparo& disparo, float delta)
+{
+	const double factor_movimiento=200.0 * delta;
+	DLibH::Vector_2d<double> v=vector_unidad_para_angulo_cartesiano(disparo.angulo);
+	DLibH::Punto_2d<double> pd{v.x * factor_movimiento, v.y * factor_movimiento};
+	disparo.poligono.desplazar(pd);
+	disparo.poligono.rotar(90.0 * delta);
+}
+
+void Controlador_principal::disparar()
+{
+	//Crear...
+	disparo disp;
+	disp.angulo=jugador.angulo;
+	disp.tiempo=1.0f;
+
+	//Calcular poligono...
+	double distancia=20.0;
+	DLibH::Vector_2d<double> v=vector_unidad_para_angulo_cartesiano(jugador.angulo);
+	DLibH::Punto_2d<double> centro{v.x * distancia, v.y * distancia};
+	DLibH::Punto_2d<double> centro_j=jugador.poligono.acc_centro();
+
+	DLibH::Punto_2d<double> pt1{centro_j.x+centro.x, centro_j.y+centro.y+10.0};
+	DLibH::Punto_2d<double> pt2{centro_j.x+centro.x-5.0, centro_j.y+centro.y};
+	DLibH::Punto_2d<double> pt3{centro_j.x+centro.x+5.0, centro_j.y+centro.y};
+
+	disp.poligono.mut_centro(centro);
+	disp.poligono.insertar_vertice(pt1);
+	disp.poligono.insertar_vertice(pt2);
+	disp.poligono.insertar_vertice(pt3);
+	disp.poligono.cerrar();
+	disp.poligono.rotar(disp.angulo);
+
+	disparos.push_back(disp);	
+}
+
