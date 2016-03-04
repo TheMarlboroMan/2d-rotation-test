@@ -1,0 +1,33 @@
+DEP_HERRAMIENTAS_PROYECTO=\
+$(DIR_O_HERRAMIENTAS_PROYECTO)lector_txt.o \
+$(DIR_O_HERRAMIENTAS_PROYECTO)fichero_pares.o\
+$(DIR_O_HERRAMIENTAS_PROYECTO)controlador_argumentos.o \
+$(DIR_O_HERRAMIENTAS_PROYECTO)string_utilidades.o \
+$(DIR_O_HERRAMIENTAS_PROYECTO)ficheros_utilidades.o \
+$(DIR_O_HERRAMIENTAS_PROYECTO)dnot_parser.o \
+$(DIR_O_HERRAMIENTAS_PROYECTO)dnot_token.o \
+$(DIR_O_HERRAMIENTAS_PROYECTO)localizador_base.o \
+$(DIR_O_HERRAMIENTAS_PROYECTO)compositor_vista.o \
+$(DIR_O_HERRAMIENTAS_PROYECTO)listado_vertical.o\
+$(DIR_O_HERRAMIENTAS_PROYECTO)estructura_paginacion.o\
+#$(DIR_O_HERRAMIENTAS_PROYECTO)generador_numeros.o \
+
+DEP_CLASES_APP=\
+$(DIR_O)kernel_config.o\
+$(DIR_O)app_config.o\
+
+DEP_CONTROLADORES=\
+$(DIR_O)director_estados.o \
+$(DIR_O)controlador_principal.o \
+
+DEP_FRAMEWORK=\
+$(DIR_O)fw_kernel.o \
+$(DIR_O)fw_input.o \
+$(DIR_O)fw_director_estados_interface.o \
+$(DIR_O)fw_estados.o \
+$(DIR_O)fw_controlador_interface.o \
+$(DIR_O)fw_eventos.o \
+$(DIR_O)fw_audio.o \
+$(DIR_O)fw_cargador_recursos.o \
+$(DIR_O)fw_kernel_driver_interface.o \
+$(DIR_O)fw_configuracion_base.o \

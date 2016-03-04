@@ -1,0 +1,27 @@
+################################################################################
+#Definciones
+
+DIR_CLASES_APP=./class/app/
+DIR_CLASES_IMPLEMENTACION_FRAMEWORK=./class/app/framework_impl/
+
+################################################################################
+#Implementación framework...
+################################################################################
+
+$(DIR_O)kernel_config.o:\
+$(DIR_CLASES_IMPLEMENTACION_FRAMEWORK)kernel_config.h \
+$(DIR_CLASES_IMPLEMENTACION_FRAMEWORK)kernel_config.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_IMPLEMENTACION_FRAMEWORK)kernel_config.cpp -o $(DIR_O)kernel_config.o
+
+$(DIR_O)app_config.o:\
+$(DIR_CLASES_IMPLEMENTACION_FRAMEWORK)app_config.h \
+$(DIR_CLASES_IMPLEMENTACION_FRAMEWORK)app_config.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_IMPLEMENTACION_FRAMEWORK)app_config.cpp -o $(DIR_O)app_config.o
+
+################################################################################
+#Definiciones...
+################################################################################
+
+################################################################################
+#Clases...
+################################################################################

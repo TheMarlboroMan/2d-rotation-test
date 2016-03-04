@@ -1,0 +1,21 @@
+################################################################################
+#Definiciones...
+
+DIR_CONTROLADORES=./class/controladores/
+DIR_FRAMEWORK=./class/framework/
+DIR_CLASES_EVENTOS=./class/app/eventos/
+
+################################################################################
+#Controladores...
+################################################################################
+
+$(DIR_O)director_estados.o :\
+$(DIR_O)controlador_principal.o \
+$(DIR_CONTROLADORES)director_estados.h \
+$(DIR_CONTROLADORES)director_estados.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CONTROLADORES)director_estados.cpp -o $(DIR_O)director_estados.o 
+
+$(DIR_O)controlador_principal.o :\
+$(DIR_CONTROLADORES)principal.h \
+$(DIR_CONTROLADORES)principal.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CONTROLADORES)principal.cpp -o $(DIR_O)controlador_principal.o 

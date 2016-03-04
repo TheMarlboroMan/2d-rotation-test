@@ -1,0 +1,71 @@
+################################################################################
+# Definiciones
+
+DIR_CLASS_FRAMEWORK=./class/framework/
+
+################################################################################
+#Clases framework
+
+$(DIR_O)fw_kernel.o :\
+$(DIR_O)fw_input.o \
+$(DIR_O)fw_director_estados_interface.o \
+$(DIR_O)fw_estados.o \
+$(DIR_O)fw_controlador_interface.o \
+$(DIR_O)fw_eventos.o \
+$(DIR_O)fw_audio.o \
+$(DIR_O)fw_cargador_recursos.o \
+$(DIR_O)fw_kernel_driver_interface.o \
+$(DIR_O)fw_configuracion_base.o \
+$(DIR_CLASS_FRAMEWORK)kernel.h \
+$(DIR_CLASS_FRAMEWORK)kernel.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASS_FRAMEWORK)kernel.cpp -o $(DIR_O)fw_kernel.o 
+
+$(DIR_O)fw_input.o :\
+$(DIR_O)fw_kernel_driver_interface.o \
+$(DIR_CLASS_FRAMEWORK)input.h \
+$(DIR_CLASS_FRAMEWORK)input.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASS_FRAMEWORK)input.cpp -o $(DIR_O)fw_input.o
+
+$(DIR_O)fw_director_estados_interface.o :\
+$(DIR_O)fw_controlador_interface.o \
+$(DIR_CLASS_FRAMEWORK)director_estados_interface.h \
+$(DIR_CLASS_FRAMEWORK)director_estados_interface.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASS_FRAMEWORK)director_estados_interface.cpp -o $(DIR_O)fw_director_estados_interface.o 
+
+$(DIR_O)fw_estados.o :\
+$(DIR_CLASS_FRAMEWORK)estados.h \
+$(DIR_CLASS_FRAMEWORK)estados.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASS_FRAMEWORK)estados.cpp -o $(DIR_O)fw_estados.o 
+
+$(DIR_O)fw_controlador_interface.o :\
+$(DIR_O)fw_input.o \
+$(DIR_CLASS_FRAMEWORK)controlador_interface.h \
+$(DIR_CLASS_FRAMEWORK)controlador_interface.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASS_FRAMEWORK)controlador_interface.cpp -o $(DIR_O)fw_controlador_interface.o 
+
+$(DIR_O)fw_eventos.o :\
+$(DIR_CLASS_FRAMEWORK)eventos.h \
+$(DIR_CLASS_FRAMEWORK)eventos.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASS_FRAMEWORK)eventos.cpp -o $(DIR_O)fw_eventos.o 
+
+$(DIR_O)fw_audio.o :\
+$(DIR_CLASS_FRAMEWORK)audio.h \
+$(DIR_CLASS_FRAMEWORK)audio.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASS_FRAMEWORK)audio.cpp -o $(DIR_O)fw_audio.o 
+
+$(DIR_O)fw_cargador_recursos.o :\
+$(DIR_O)fw_kernel_driver_interface.o \
+$(DIR_CLASS_FRAMEWORK)cargador_recursos.h \
+$(DIR_CLASS_FRAMEWORK)cargador_recursos.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASS_FRAMEWORK)cargador_recursos.cpp -o $(DIR_O)fw_cargador_recursos.o
+
+$(DIR_O)fw_kernel_driver_interface.o :\
+$(DIR_CLASS_FRAMEWORK)kernel_driver_interface.h \
+$(DIR_CLASS_FRAMEWORK)kernel_driver_interface.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASS_FRAMEWORK)kernel_driver_interface.cpp -o $(DIR_O)fw_kernel_driver_interface.o	
+
+$(DIR_O)fw_configuracion_base.o :\
+$(DIR_CLASS_FRAMEWORK)configuracion_base.h \
+$(DIR_CLASS_FRAMEWORK)configuracion_base.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASS_FRAMEWORK)configuracion_base.cpp -o $(DIR_O)fw_configuracion_base.o 
+

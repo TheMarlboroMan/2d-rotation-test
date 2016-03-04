@@ -1,0 +1,33 @@
+DIR_O=./objects/
+DIR_CLASS=./class/
+DIR_BOOTSTRAP=./bootstrap/
+
+################################################################################
+#Definición de objetos necesarios para main.
+
+include _makefile_dependencias_main
+
+################################################################################
+#Definiciones de targets.
+
+all: \
+$(DIR_O)dummy \
+$(EJECUTABLE) \
+
+$(DIR_O)dummy:
+	$(PREPARAR_DIR_OBJECTS)
+
+$(EJECUTABLE): \
+$(DEP_CLASES_APP) \
+$(DEP_FRAMEWORK) \
+$(DEP_CONTROLADORES) \
+$(DEP_HERRAMIENTAS_PROYECTO) \
+main.cpp
+	$(CC) $(CFLAGS_TARGET_FINAL) $(INCLUDES) main.cpp $(DEP_FRAMEWORK) $(DEP_CLASES_APP) $(DEP_CONTROLADORES) $(DEP_HERRAMIENTAS_PROYECTO) -o $(EJECUTABLE) $(LIBRERIAS) $(LINKER)
+
+clean:
+	$(LIMPIAR)
+
+include _makefile_controladores
+include _makefile_clases_app
+include _makefile_framework
