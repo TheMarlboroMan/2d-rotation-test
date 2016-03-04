@@ -61,31 +61,35 @@ void  Controlador_principal::loop(DFramework::Input& input, float delta)
 	}
 	else
 	{
-		auto copia_p=jugador.poligono;
-		auto copia_a=jugador.angulo;
-
-		for(const auto& p : poligonos)
+		//Comprobar colisión de disparos... Si colisiona los liquidamos.
+		for(auto& p : poligonos)
 		{
 			for(auto& d : disparos)
 			{
 				if(colision_poligono_SAT(p, d.poligono)) 
 				{
 					d.tiempo=0.0f;
+					DLibH::Vector_2d<double> v=vector_unidad_para_angulo_cartesiano(d.angulo);					
+					p.desplazar(DLibH::Punto_2d<double>{v.x, v.y});
 					break;
 				}
 			}
 		}
 
-		for(auto& d : disparos) mover_disparo(d, delta);
+		//Movimiento de disparos y colisión...
 		auto ini=std::begin(disparos);
 		while(ini < std::end(disparos))
 		{
 			auto &d=*ini;
+			mover_disparo(d, delta);
 			d.tiempo-=delta;
 			if(d.tiempo < 0.0f) ini=disparos.erase(ini);
 			else ++ini;
 		}
 
+		//Copia del jugador, por si colisiona poder restaurarlo.
+		auto copia_p=jugador.poligono;
+		auto copia_a=jugador.angulo;
 
 		if(input.es_input_pulsado(Input::izquierda))
 		{
@@ -109,6 +113,7 @@ void  Controlador_principal::loop(DFramework::Input& input, float delta)
 			disparar();
 		}
 
+		//Colisión del jugador.
 		for(const auto& p : poligonos)
 		{
 			if(colision_poligono_SAT(p, jugador.poligono))
