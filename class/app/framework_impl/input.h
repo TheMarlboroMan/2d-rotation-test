@@ -12,7 +12,9 @@ espacio,
 izquierda,
 derecha,
 arriba,
-abajo
+abajo,
+zoom_mas,
+zoom_menos
 };
 
 };

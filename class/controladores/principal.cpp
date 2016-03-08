@@ -16,7 +16,7 @@
 using namespace App;
 
 Controlador_principal::Controlador_principal(DLibH::Log_base& log)
-	:log(log)
+	:log(log), zoom(0.5)
 {
 	jugador.angulo=90.0;
 	jugador.poligono.insertar_vertice({10.0, 20.0});
@@ -24,6 +24,7 @@ Controlador_principal::Controlador_principal(DLibH::Log_base& log)
 	jugador.poligono.insertar_vertice({0.0, 0.0});
 	jugador.poligono.cerrar();
 	jugador.poligono.mut_centro({10.0, 10.0});
+	jugador.vel=0.0f;
 
 	Herramientas_proyecto::Lector_txt L("data/app/data.dat", '#');
 	std::string linea;
@@ -87,6 +88,16 @@ void  Controlador_principal::loop(DFramework::Input& input, float delta)
 			else ++ini;
 		}
 
+		if(input.es_input_pulsado(Input::zoom_mas)) 
+		{
+			zoom+=(double)delta;
+		}
+		else if(input.es_input_pulsado(Input::zoom_menos)) 
+		{
+			zoom-=(double)delta;
+			if(zoom < 0.10) zoom=0.10;
+		}
+
 		//Copia del jugador, por si colisiona poder restaurarlo.
 		auto copia_p=jugador.poligono;
 		auto copia_a=jugador.angulo;
@@ -99,13 +110,27 @@ void  Controlador_principal::loop(DFramework::Input& input, float delta)
 		{
 			rotar(delta, -1);
 		}
+
 		if(input.es_input_pulsado(Input::arriba))
 		{
-			mover(delta, 1);
+			jugador.vel+=delta;
+			if(jugador.vel > 3.0f) jugador.vel=3.0f;
 		}
 		else if(input.es_input_pulsado(Input::abajo))
 		{
-			mover(delta, -1);
+			jugador.vel-=delta * 5.0f;
+			if(jugador.vel < -1.0f) jugador.vel=-1.0f;
+		}
+		else if(jugador.vel)
+		{
+			float vel=fabs(jugador.vel)-delta;
+			if(vel < 0.0f) vel=0.0f;
+			jugador.vel=vel* (jugador.vel > 0.f ? 1.0 : -1.0);
+		}
+
+		if(jugador.vel)
+		{
+			mover(delta);
 		}
 		
 		if(input.es_input_down(Input::espacio))
@@ -123,8 +148,6 @@ void  Controlador_principal::loop(DFramework::Input& input, float delta)
 				break;
 			}
 		}
-
-
 	}
 }
 
@@ -137,15 +160,15 @@ void  Controlador_principal::dibujar(DLibV::Pantalla& pantalla)
 {
 	pantalla.limpiar(0, 0, 0, 255);
 
-	auto transformar=[](const DLibH::Punto_2d<double>& pt, int nx, int ny)
+	auto transformar=[](const DLibH::Punto_2d<double>& pt, int nx, int ny, double zoom)
 	{
-		double x=pt.x + nx;
-		double y=-pt.y + ny;
+		double x=(pt.x - nx) * zoom;
+		double y=(-pt.y + ny) * zoom;
 
 		return DLibH::Punto_2d<double>(x, y);
 	};
 
-	auto dibujar_poligono=[transformar](const tpoligono& poligono, DLibV::Pantalla& pantalla, int ex, int ey)
+	auto dibujar_poligono=[transformar](const tpoligono& poligono, DLibV::Pantalla& pantalla, int ex, int ey, double zoom)
 	{
 		int iteracion=0;
 		DLibH::Punto_2d<double> p1, p2;
@@ -161,8 +184,8 @@ void  Controlador_principal::dibujar(DLibV::Pantalla& pantalla)
 
 			if(iteracion)
 			{
-				auto pt1=transformar(p1, ex, ey);
-				auto pt2=transformar(p2, ex, ey);
+				auto pt1=transformar(p1, ex, ey, zoom);
+				auto pt2=transformar(p2, ex, ey, zoom);
 
 				DLibV::Representacion_primitiva_linea l(pt1.x, pt1.y, pt2.x, pt2.y, 0, 255, 0);
 				l.volcar(pantalla);
@@ -175,21 +198,24 @@ void  Controlador_principal::dibujar(DLibV::Pantalla& pantalla)
 		p1=p2;
 		p2=poligono.vertice(0);
 
-		auto pt1=transformar(p1, ex, ey);
-		auto pt2=transformar(p2, ex, ey);
+		auto pt1=transformar(p1, ex, ey, zoom);
+		auto pt2=transformar(p2, ex, ey, zoom);
 		DLibV::Representacion_primitiva_linea l(pt1.x, pt1.y, pt2.x, pt2.y, 0, 255, 0);
 		l.volcar(pantalla);
 
 		//El centro.
-		auto ptc=transformar(poligono.acc_centro(), ex, ey);
+		auto ptc=transformar(poligono.acc_centro(), ex, ey, zoom);
 		DLibV::Representacion_primitiva_puntos centro(ptc.x, ptc.y, 255, 0, 0);
 		centro.volcar(pantalla);
 	};
 
-	dibujar_poligono(jugador.poligono, pantalla, 0, 400);
+	int 	xcam=(jugador.poligono.acc_centro().x) - (320 / zoom), 
+		ycam=(jugador.poligono.acc_centro().y) + (200 / zoom);
 
-	for(const auto& p : poligonos) dibujar_poligono(p, pantalla, 0, 400);
-	for(const auto& d : disparos) dibujar_poligono(d.poligono, pantalla, 0, 400);
+	dibujar_poligono(jugador.poligono, pantalla, xcam, ycam, zoom);
+
+	for(const auto& p : poligonos) dibujar_poligono(p, pantalla, xcam, ycam, zoom);
+	for(const auto& d : disparos) dibujar_poligono(d.poligono, pantalla, xcam, ycam, zoom);
 }
 
 void  Controlador_principal::despertar()
@@ -216,12 +242,10 @@ void Controlador_principal::rotar(float delta, int dir)
 	jugador.poligono.rotar(factor);
 }
 
-void Controlador_principal::mover(float delta, int dir)
+void Controlador_principal::mover(float delta)
 {
-	double angulo=dir > 0 ? jugador.angulo : jugador.angulo+180.0;
-	const double factor_movimiento=100.0 * delta;
-
-	DLibH::Vector_2d<double> v=vector_unidad_para_angulo_cartesiano(angulo);
+	const double factor_movimiento=jugador.vel;
+	DLibH::Vector_2d<double> v=vector_unidad_para_angulo_cartesiano(jugador.angulo);
 	DLibH::Punto_2d<double> pd{v.x * factor_movimiento, v.y * factor_movimiento};
 	jugador.poligono.desplazar(pd);
 }

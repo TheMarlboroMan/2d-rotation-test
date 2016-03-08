@@ -34,6 +34,7 @@ class Controlador_principal:
 	{
 		tpoligono			poligono;
 		double				angulo;
+		float				vel;
 	}jugador;
 
 	struct disparo
@@ -44,7 +45,7 @@ class Controlador_principal:
 	};
 
 	void					rotar(float delta, int dir);
-	void					mover(float delta, int dir);
+	void					mover(float delta);
 	void					mover_disparo(disparo&, float);
 	void					disparar();
 
@@ -52,6 +53,7 @@ class Controlador_principal:
 
 	std::vector<tpoligono>			poligonos;
 	std::vector<disparo>			disparos;
+	double  				zoom;
 };
 
 }
