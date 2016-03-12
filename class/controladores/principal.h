@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include <def_video.h>
 #include <herramientas/poligono_2d/poligono_2d.h>
 #include <herramientas/log_base/log_base.h>
 
@@ -44,16 +45,22 @@ class Controlador_principal:
 		float				tiempo;
 	};
 
+	DLibH::Punto_2d<double>			punto_desde_pos_pantalla(int x, int y);
 	void					rotar(float delta, int dir);
 	void					mover(float delta);
 	void					mover_disparo(disparo&, float);
 	void					disparar();
+	void					nuevo_punto(DLibH::Punto_2d<double>);
+	void					cerrar_poligono();
 
 	DLibH::Log_base&			log;
+	DLibV::Fuente_TTF			fuente_akashi;
 
 	std::vector<tpoligono>			poligonos;
 	std::vector<disparo>			disparos;
 	double  				zoom;
+	int 					xcam, ycam;
+	tpoligono				poligono_construccion;
 };
 
 }

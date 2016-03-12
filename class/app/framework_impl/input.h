@@ -14,7 +14,9 @@ derecha,
 arriba,
 abajo,
 zoom_mas,
-zoom_menos
+zoom_menos,
+click_i,
+click_d
 };
 
 };

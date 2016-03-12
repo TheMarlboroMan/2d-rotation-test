@@ -1,7 +1,6 @@
 #include "principal.h"
 
 #include <string>
-#include <def_video.h>
 
 #include <class/lector_txt.h>
 
@@ -16,7 +15,11 @@
 using namespace App;
 
 Controlador_principal::Controlador_principal(DLibH::Log_base& log)
-	:log(log), zoom(0.5)
+	:log(log), 
+		fuente_akashi("data/fuentes/Akashi.ttf", 16), 
+		zoom(0.5), 
+		xcam(0), 
+		ycam(0)
 {
 	jugador.angulo=90.0;
 	jugador.poligono.insertar_vertice({10.0, 20.0});
@@ -62,6 +65,17 @@ void  Controlador_principal::loop(DFramework::Input& input, float delta)
 	}
 	else
 	{
+
+		if(input.es_input_down(Input::click_i))
+		{
+			auto pos_raton=input.acc_posicion_raton();
+			nuevo_punto(punto_desde_pos_pantalla(pos_raton.x, pos_raton.y));
+		}
+		else if(input.es_input_down(Input::click_d))
+		{
+			cerrar_poligono();
+		}
+
 		//Comprobar colisión de disparos... Si colisiona los liquidamos.
 		for(auto& p : poligonos)
 		{
@@ -70,7 +84,7 @@ void  Controlador_principal::loop(DFramework::Input& input, float delta)
 				if(colision_poligono_SAT(p, d.poligono)) 
 				{
 					d.tiempo=0.0f;
-					DLibH::Vector_2d<double> v=vector_unidad_para_angulo_cartesiano(d.angulo);					
+					DLibH::Vector_2d<double> v=vector_unidad_para_angulo_cartesiano(d.angulo);
 					p.desplazar(DLibH::Punto_2d<double>{v.x, v.y});
 					break;
 				}
@@ -168,6 +182,8 @@ void  Controlador_principal::dibujar(DLibV::Pantalla& pantalla)
 		return DLibH::Punto_2d<double>(x, y);
 	};
 
+	//TODO: Quizás extender la librería LibDanSDL2 con SDL2_gfx????
+
 	auto dibujar_poligono=[transformar](const tpoligono& poligono, DLibV::Pantalla& pantalla, int ex, int ey, double zoom)
 	{
 		int iteracion=0;
@@ -209,13 +225,24 @@ void  Controlador_principal::dibujar(DLibV::Pantalla& pantalla)
 		centro.volcar(pantalla);
 	};
 
-	int 	xcam=(jugador.poligono.acc_centro().x) - (320 / zoom), 
-		ycam=(jugador.poligono.acc_centro().y) + (200 / zoom);
+	xcam=(jugador.poligono.acc_centro().x) - (320 / zoom), 
+	ycam=(jugador.poligono.acc_centro().y) + (200 / zoom);
 
 	dibujar_poligono(jugador.poligono, pantalla, xcam, ycam, zoom);
 
 	for(const auto& p : poligonos) dibujar_poligono(p, pantalla, xcam, ycam, zoom);
 	for(const auto& d : disparos) dibujar_poligono(d.poligono, pantalla, xcam, ycam, zoom);
+
+	//TODO: Mejor usar otra función.
+	if(poligono_construccion.size() > 2) 
+	{
+		dibujar_poligono(poligono_construccion, pantalla, xcam, ycam, zoom);
+	}
+
+	std::string texto=std::to_string(jugador.poligono.acc_centro().x)+","+std::to_string(jugador.poligono.acc_centro().y);
+	DLibV::Representacion_TTF txt(fuente_akashi, {255, 255, 255, 255}, texto);
+	txt.ir_a(16, 16);
+	txt.volcar(pantalla);
 }
 
 void  Controlador_principal::despertar()
@@ -286,3 +313,28 @@ void Controlador_principal::disparar()
 	disparos.push_back(disp);	
 }
 
+DLibH::Punto_2d<double>	Controlador_principal::punto_desde_pos_pantalla(int x, int y)
+{
+	double px=xcam+(x/zoom);
+	double py=ycam-(y/zoom);
+	return DLibH::Punto_2d<double>{px, py};
+}
+
+void Controlador_principal::nuevo_punto(DLibH::Punto_2d<double> p)
+{
+	poligono_construccion.insertar_vertice(p);
+}
+
+void Controlador_principal::cerrar_poligono()
+{
+	if(poligono_construccion.size() < 3 || poligono_construccion.es_concavo())
+	{
+		return;
+	}
+	else
+	{
+		poligono_construccion.cerrar();
+		poligonos.push_back(poligono_construccion);
+		poligono_construccion=Poligono_2d<double>{};
+	}
+}
