@@ -243,6 +243,12 @@ void  Controlador_principal::dibujar(DLibV::Pantalla& pantalla)
 	DLibV::Representacion_TTF txt(fuente_akashi, {255, 255, 255, 255}, texto);
 	txt.ir_a(16, 16);
 	txt.volcar(pantalla);
+
+	std::vector<DLibV::Representacion_primitiva_poligono::punto> puntos{
+		{10,10}, {40, 20}, {50, 30}, {30, 40}};
+
+	DLibV::Representacion_primitiva_poligono poli(puntos, 255, 255, 128);
+	poli.volcar(pantalla);
 }
 
 void  Controlador_principal::despertar()
@@ -327,14 +333,16 @@ void Controlador_principal::nuevo_punto(DLibH::Punto_2d<double> p)
 
 void Controlador_principal::cerrar_poligono()
 {
-	if(poligono_construccion.size() < 3 || poligono_construccion.es_concavo())
-	{
-		return;
-	}
-	else
+	if(poligono_construccion.size() == 3)
 	{
 		poligono_construccion.cerrar();
 		poligonos.push_back(poligono_construccion);
-		poligono_construccion=Poligono_2d<double>{};
 	}
+	else if(poligono_construccion.size() > 3 && !poligono_construccion.es_concavo())
+	{
+		poligono_construccion.cerrar();
+		poligonos.push_back(poligono_construccion);
+	}
+
+	poligono_construccion=Poligono_2d<double>{};
 }
